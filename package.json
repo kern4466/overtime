@@ -1,0 +1,14 @@
+{
+  "name": "overtime-tracker",
+  "version": "1.0.0",
+  "description": "Overtime submission and tracking system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "basic-auth": "^2.0.1"
+  }
+}

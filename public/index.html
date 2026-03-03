@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overtime — Подача овертаймов</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3352;
+      --accent: #6c63ff;
+      --accent2: #8b5cf6;
+      --accent-glow: rgba(108, 99, 255, 0.25);
+      --text: #e8eaf6;
+      --text-muted: #8892b0;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 80px;
+    }
+
+    /* ─── Header ─── */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeDown 0.5s ease;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #fff, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* ─── Period banner ─── */
+    .period-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(139,92,246,0.1));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 32px;
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 640px;
+      width: 100%;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+
+    .period-banner.visible { display: flex; }
+
+    .period-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .period-dates {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .no-period {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      max-width: 640px;
+      width: 100%;
+    }
+
+    .no-period-icon { font-size: 48px; margin-bottom: 16px; }
+    .no-period h2 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
+
+    /* ─── Main card ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 640px;
+      animation: fadeUp 0.5s ease 0.15s both;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* ─── Select ─── */
+    .select-wrapper {
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      padding-right: 44px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-muted);
+    }
+
+    /* ─── Entries section ─── */
+    #entries-section {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #entries-section.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* ─── Entry row ─── */
+    .entries-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .entry-row {
+      display: grid;
+      grid-template-columns: 1fr 120px 40px;
+      gap: 8px;
+      align-items: center;
+      animation: rowIn 0.25s ease;
+    }
+
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .entry-row input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .entry-row input::placeholder { color: var(--text-muted); }
+
+    .entry-row input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .entry-row input.error { border-color: var(--error); }
+    .entry-row input.valid { border-color: var(--success); }
+
+    input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
+
+    .btn-remove {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1.5px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-remove:hover {
+      color: var(--error);
+      border-color: var(--error);
+      background: rgba(239,68,68,0.08);
+    }
+
+    .entries-header {
+      display: grid;
+      grid-template-columns: 1fr 120px 40px;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .entries-header span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding-left: 2px;
+    }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      padding: 10px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-add:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* ─── Total bar ─── */
+    .total-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin: 16px 0 24px;
+      font-size: 14px;
+    }
+
+    .total-label { color: var(--text-muted); }
+
+    .total-value {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--accent2);
+    }
+
+    /* ─── Submit button ─── */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: var(--radius);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-submit:hover {
+      opacity: 0.9;
+      box-shadow: 0 6px 28px rgba(108,99,255,0.45);
+    }
+
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Toast / Alert ─── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 24px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 100;
+      max-width: 90vw;
+      white-space: nowrap;
+    }
+
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--success); }
+    .toast.error   { border-color: var(--error); }
+
+    /* ─── Success state ─── */
+    .success-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 48px 32px;
+      gap: 16px;
+      animation: fadeUp 0.5s ease;
+    }
+
+    .success-screen.visible { display: flex; }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.1));
+      border: 2px solid var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .success-title { font-size: 20px; font-weight: 700; }
+    .success-sub { color: var(--text-muted); font-size: 14px; }
+
+    .btn-again {
+      margin-top: 8px;
+      padding: 12px 28px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-again:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── Animations ─── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px; }
+      .entry-row { grid-template-columns: 1fr 90px 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">⏱</div>
+    <div class="logo-text">Overtime Tracker</div>
+  </div>
+  <div class="header-subtitle">Подача отчёта по овертаймам</div>
+</div>
+
+<div class="period-banner" id="period-banner">
+  <span class="period-badge">Активный период</span>
+  <span>Подача за <span class="period-dates" id="period-label"></span></span>
+</div>
+
+<div class="no-period" id="no-period" style="display:none">
+  <div class="no-period-icon">📅</div>
+  <h2>Нет активного периода</h2>
+  <p>Администратор ещё не открыл приём овертаймов. Загляни позже.</p>
+</div>
+
+<div class="card" id="main-card">
+  <div class="section-label">Сотрудник</div>
+  <div class="select-wrapper">
+    <select id="user-select">
+      <option value="">— Выбери своё имя —</option>
+    </select>
+    <svg class="select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div id="entries-section">
+    <div class="divider"></div>
+
+    <div class="section-label" style="margin-bottom:14px">Записи овертаймов</div>
+
+    <div class="entries-header">
+      <span>Номер таска</span>
+      <span>Часов</span>
+      <span></span>
+    </div>
+
+    <div class="entries-list" id="entries-list"></div>
+
+    <button class="btn-add" id="btn-add">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Добавить строку
+    </button>
+
+    <div class="total-bar">
+      <span class="total-label">Итого часов:</span>
+      <span class="total-value" id="total-hours">0</span>
+    </div>
+
+    <button class="btn-submit" id="btn-submit">Отправить отчёт</button>
+  </div>
+
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Отчёт отправлен!</div>
+    <div class="success-sub" id="success-sub"></div>
+    <button class="btn-again" id="btn-again">Отправить ещё</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  let activePeriod = null;
+  let users = [];
+
+  // ─── Init ────────────────────────────────────────────────────────────────
+  async function init() {
+    const [period, usersData] = await Promise.all([
+      fetch('/api/period').then(r => r.json()),
+      fetch('/api/users').then(r => r.json())
+    ]);
+
+    if (!period) {
+      $('no-period').style.display = 'block';
+      $('main-card').style.display = 'none';
+      return;
+    }
+
+    activePeriod = period;
+    users = usersData;
+
+    // Period banner
+    const banner = $('period-banner');
+    $('period-label').textContent = period.label;
+    banner.classList.add('visible');
+
+    // Users dropdown
+    const sel = $('user-select');
+    users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = u.name;
+      sel.appendChild(opt);
+    });
+
+    sel.addEventListener('change', onUserChange);
+  }
+
+  function onUserChange() {
+    const section = $('entries-section');
+    const success = $('success-screen');
+    success.classList.remove('visible');
+
+    if (!this.value) {
+      section.classList.remove('visible');
+      return;
+    }
+
+    clearEntries();
+    addRow();
+    section.classList.add('visible');
+    // Фокус на первый инпут
+    setTimeout(() => {
+      const first = document.querySelector('.entry-task');
+      if (first) first.focus();
+    }, 100);
+  }
+
+  // ─── Entries ─────────────────────────────────────────────────────────────
+  function clearEntries() {
+    $('entries-list').innerHTML = '';
+    updateTotal();
+  }
+
+  function addRow(taskVal = '', hoursVal = '') {
+    const list = $('entries-list');
+    const row = document.createElement('div');
+    row.className = 'entry-row';
+
+    const taskInput = document.createElement('input');
+    taskInput.type = 'text';
+    taskInput.placeholder = 'OSHD-12345';
+    taskInput.className = 'entry-task';
+    taskInput.value = taskVal;
+    taskInput.autocomplete = 'off';
+    taskInput.spellcheck = false;
+
+    // Форматирование на лету — OSHD в верхний регистр
+    taskInput.addEventListener('input', () => {
+      const v = taskInput.value.toUpperCase();
+      taskInput.value = v;
+      validateTask(taskInput);
+      // Если заполнены оба поля в последней строке — добавляем новую
+      autoAddRow();
+    });
+
+    taskInput.addEventListener('blur', () => validateTask(taskInput));
+
+    const hoursInput = document.createElement('input');
+    hoursInput.type = 'number';
+    hoursInput.placeholder = '0';
+    hoursInput.className = 'entry-hours';
+    hoursInput.min = '0.5';
+    hoursInput.max = '24';
+    hoursInput.step = '0.5';
+    hoursInput.value = hoursVal;
+
+    hoursInput.addEventListener('input', () => {
+      updateTotal();
+      autoAddRow();
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-remove';
+    removeBtn.title = 'Удалить строку';
+    removeBtn.innerHTML = '×';
+    removeBtn.addEventListener('click', () => {
+      row.remove();
+      updateTotal();
+    });
+
+    row.appendChild(taskInput);
+    row.appendChild(hoursInput);
+    row.appendChild(removeBtn);
+    list.appendChild(row);
+  }
+
+  function autoAddRow() {
+    const rows = document.querySelectorAll('.entry-row');
+    const last = rows[rows.length - 1];
+    if (!last) return;
+    const task = last.querySelector('.entry-task').value.trim();
+    const hours = last.querySelector('.entry-hours').value;
+    if (task && hours) {
+      addRow();
+      // Фокус на таск нового ряда
+      const newRow = document.querySelector('.entry-row:last-child .entry-task');
+      if (newRow) newRow.focus();
+    }
+  }
+
+  function validateTask(input) {
+    const v = input.value.trim();
+    if (!v) { input.className = 'entry-task'; return; }
+    const ok = /^OSHD-\d+$/.test(v);
+    input.className = 'entry-task ' + (ok ? 'valid' : 'error');
+  }
+
+  function updateTotal() {
+    const inputs = document.querySelectorAll('.entry-hours');
+    let total = 0;
+    inputs.forEach(i => { total += parseFloat(i.value) || 0; });
+    $('total-hours').textContent = total % 1 === 0 ? total : total.toFixed(1);
+  }
+
+  $('btn-add').addEventListener('click', () => addRow());
+
+  // ─── Submit ───────────────────────────────────────────────────────────────
+  $('btn-submit').addEventListener('click', async () => {
+    const userId = $('user-select').value;
+    if (!userId) { showToast('Выбери сотрудника', 'error'); return; }
+
+    const rows = document.querySelectorAll('.entry-row');
+    const entries = [];
+    const taskRe = /^OSHD-\d+$/;
+    let hasError = false;
+
+    rows.forEach(row => {
+      const task = row.querySelector('.entry-task').value.trim();
+      const hours = parseFloat(row.querySelector('.entry-hours').value);
+
+      if (!task && !hours) return; // пустая строка — игнорим
+
+      if (!taskRe.test(task)) {
+        row.querySelector('.entry-task').className = 'entry-task error';
+        hasError = true;
+        return;
+      }
+      if (!hours || hours <= 0) {
+        row.querySelector('.entry-hours').style.borderColor = 'var(--error)';
+        hasError = true;
+        return;
+      }
+
+      entries.push({ taskId: task, hours });
+    });
+
+    if (hasError) { showToast('Исправь ошибки в форме', 'error'); return; }
+    if (!entries.length) { showToast('Добавь хотя бы одну запись', 'error'); return; }
+
+    const btn = $('btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Отправка...';
+
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: Number(userId), periodId: activePeriod.id, entries })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      const totalHours = entries.reduce((s, e) => s + e.hours, 0);
+      const user = users.find(u => u.id === Number(userId));
+
+      $('entries-section').classList.remove('visible');
+      const ss = $('success-screen');
+      $('success-sub').textContent = `${user.name} — ${entries.length} задач, ${totalHours} ч. за ${activePeriod.label}`;
+      ss.classList.add('visible');
+      showToast('Отчёт успешно отправлен!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Ошибка при отправке', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Отправить отчёт';
+    }
+  });
+
+  $('btn-again').addEventListener('click', () => {
+    $('success-screen').classList.remove('visible');
+    clearEntries();
+    addRow();
+    $('entries-section').classList.add('visible');
+  });
+
+  // ─── Toast ────────────────────────────────────────────────────────────────
+  let toastTimer = null;
+  function showToast(msg, type = 'info') {
+    const t = $('toast');
+    const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+    t.innerHTML = `<span>${icon}</span> ${msg}`;
+    t.className = `toast visible ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('visible'), 3500);
+  }
+
+  init();
+</script>
+</body>
+</html>
