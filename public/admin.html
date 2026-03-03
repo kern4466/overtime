@@ -674,6 +674,9 @@
     <div class="nav-item" data-page="reports">
       <span class="nav-icon">📋</span> Отчёты
     </div>
+    <div class="nav-item" data-page="detail">
+      <span class="nav-icon">📑</span> Детализация
+    </div>
 
     <div class="nav-section">Настройки</div>
     <div class="nav-item" data-page="users">
@@ -800,6 +803,60 @@
             </tr>
           </thead>
           <tbody id="reports-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="page" id="page-detail">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Детализация подач</div>
+        <div class="page-subtitle">Каждая строка — отдельная запись с датой и временем подачи</div>
+      </div>
+      <button class="btn btn-primary" onclick="exportDetailCSV()">↓ Скачать CSV</button>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <div class="card-body">
+        <div class="filters">
+          <div class="filter-group">
+            <div class="filter-label">Сотрудник</div>
+            <select id="detail-filter-user" onchange="loadDetail()">
+              <option value="">Все сотрудники</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">Период</div>
+            <select id="detail-filter-period" onchange="loadDetail()">
+              <option value="">Все периоды</option>
+            </select>
+          </div>
+          <div style="margin-top: auto;">
+            <button class="btn btn-ghost" onclick="clearDetailFilters()">Сбросить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Журнал подач</div>
+        <div id="detail-count" style="font-size:13px; color: var(--text-muted);"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Дата подачи</th>
+              <th>Сотрудник</th>
+              <th>Период</th>
+              <th>Таск</th>
+              <th>Часов</th>
+            </tr>
+          </thead>
+          <tbody id="detail-table-body"></tbody>
         </table>
       </div>
     </div>
@@ -986,9 +1043,10 @@
     document.querySelector(`[data-page="${name}"]`).classList.add('active');
     $(`page-${name}`).classList.add('active');
 
-    if (name === 'reports') loadReports();
-    if (name === 'users')   loadUsers();
-    if (name === 'periods') loadPeriods();
+    if (name === 'reports')   loadReports();
+    if (name === 'detail')    loadDetail();
+    if (name === 'users')     loadUsers();
+    if (name === 'periods')   loadPeriods();
     if (name === 'dashboard') loadDashboard();
   }
 
@@ -1159,6 +1217,123 @@
     $('filter-user').value = '';
     $('filter-period').value = '';
     loadReports();
+  }
+
+  // ─── Detail (log) ─────────────────────────────────────────────────────────
+  async function loadDetail() {
+    // Populate filters (reuse or build fresh)
+    const fu = $('detail-filter-user');
+    const fp = $('detail-filter-period');
+
+    if (allUsers.length) {
+      const selU = fu.value;
+      fu.innerHTML = '<option value="">Все сотрудники</option>';
+      allUsers.forEach(u => {
+        const o = document.createElement('option');
+        o.value = u.id; o.textContent = u.name;
+        if (String(u.id) === selU) o.selected = true;
+        fu.appendChild(o);
+      });
+    }
+    if (allPeriods.length) {
+      const selP = fp.value;
+      fp.innerHTML = '<option value="">Все периоды</option>';
+      allPeriods.forEach(p => {
+        const o = document.createElement('option');
+        o.value = p.id; o.textContent = p.label + (p.active ? ' ●' : '');
+        if (String(p.id) === selP) o.selected = true;
+        fp.appendChild(o);
+      });
+    }
+
+    const params = new URLSearchParams();
+    if (fu.value) params.set('userId', fu.value);
+    if (fp.value) params.set('periodId', fp.value);
+
+    const [users, periods, subs] = await Promise.all([
+      allUsers.length   ? Promise.resolve(allUsers)   : api('/users'),
+      allPeriods.length ? Promise.resolve(allPeriods) : api('/periods'),
+      api('/submissions?' + params)
+    ]);
+    allUsers = users; allPeriods = periods;
+
+    // Refill filters if they were empty
+    if (!$('detail-filter-user').options.length || $('detail-filter-user').options.length === 1) {
+      fu.innerHTML = '<option value="">Все сотрудники</option>';
+      users.forEach(u => { const o = document.createElement('option'); o.value = u.id; o.textContent = u.name; fu.appendChild(o); });
+    }
+    if (!$('detail-filter-period').options.length || $('detail-filter-period').options.length === 1) {
+      fp.innerHTML = '<option value="">Все периоды</option>';
+      periods.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.label + (p.active ? ' ●' : ''); fp.appendChild(o); });
+    }
+
+    // Flatten: one row per entry
+    const rows = [];
+    subs.forEach(s => {
+      s.entries.forEach(e => {
+        rows.push({
+          submittedAt: e.submittedAt || s.submittedAt,
+          userName:    s.user.name,
+          periodLabel: s.period.label,
+          taskId:      e.taskId,
+          hours:       e.hours
+        });
+      });
+    });
+
+    // Sort by date desc
+    rows.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+    $('detail-count').textContent = `${rows.length} запис${rows.length === 1 ? 'ь' : rows.length < 5 ? 'и' : 'ей'}`;
+
+    const tbody = $('detail-table-body');
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="5">
+        <div class="empty">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">Нет данных</div>
+          <div>Измените фильтры или дождитесь отчётов от сотрудников</div>
+        </div>
+      </td></tr>`;
+      return;
+    }
+
+    // Визуально разделяем группы по сотруднику+периоду
+    let prevKey = null;
+    tbody.innerHTML = rows.map((r, i) => {
+      const key = r.userName + '|' + r.periodLabel;
+      const isNew = key !== prevKey;
+      prevKey = key;
+
+      const dateStr = new Date(r.submittedAt).toLocaleString('ru-RU', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+
+      return `<tr${isNew && i > 0 ? ' style="border-top:2px solid var(--border);"' : ''}>
+        <td style="color:var(--text-muted); font-size:13px; white-space:nowrap">${dateStr}</td>
+        <td><strong>${r.userName}</strong></td>
+        <td><span class="tag tag-purple">${r.periodLabel}</span></td>
+        <td><span class="task-id">${r.taskId}</span></td>
+        <td><strong>${formatHours(r.hours)}</strong></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function clearDetailFilters() {
+    $('detail-filter-user').value = '';
+    $('detail-filter-period').value = '';
+    loadDetail();
+  }
+
+  function exportDetailCSV() {
+    const userId   = $('detail-filter-user').value;
+    const periodId = $('detail-filter-period').value;
+    const params   = new URLSearchParams();
+    if (userId)   params.set('userId', userId);
+    if (periodId) params.set('periodId', periodId);
+    params.set('detail', '1');
+    window.location.href = '/api/admin/export/csv?' + params;
   }
 
   function exportCSV() {

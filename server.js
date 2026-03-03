@@ -269,28 +269,48 @@ app.delete('/api/admin/submissions/:id', (req, res) => {
 
 // Экспорт CSV
 app.get('/api/admin/export/csv', requireAdminAuth, (req, res) => {
-  const { userId, periodId } = req.query;
+  const { userId, periodId, detail } = req.query;
   const subs = db.getSubmissions({
     userId:   userId   ? Number(userId)   : undefined,
     periodId: periodId ? Number(periodId) : undefined
   });
 
-  const rows = ['Сотрудник;Логин;Период;Таск;Часов;Дата подачи'];
-  for (const s of subs) {
-    for (const e of s.entries) {
-      rows.push([
-        s.user.name,
-        s.user.login || '',
-        s.period.label,
-        e.taskId,
-        e.hours,
-        new Date(s.submittedAt).toLocaleString('ru-RU')
-      ].join(';'));
+  let rows, filename;
+
+  if (detail === '1') {
+    // Детализация: одна строка на каждую запись entries, с индивидуальной датой
+    rows = ['Дата подачи;Сотрудник;Логин;Период;Таск;Часов'];
+    for (const s of subs) {
+      for (const e of s.entries) {
+        const dt = new Date(e.submittedAt || s.submittedAt).toLocaleString('ru-RU');
+        rows.push([dt, s.user.name, s.user.login || '', s.period.label, e.taskId, e.hours].join(';'));
+      }
     }
+    filename = 'overtime_detail.csv';
+  } else {
+    // Сводный: группируем по taskId, суммируем часы, берём последнюю дату
+    rows = ['Сотрудник;Логин;Период;Таск;Часов;Последняя подача'];
+    for (const s of subs) {
+      const taskMap = new Map();
+      for (const e of s.entries) {
+        if (taskMap.has(e.taskId)) {
+          const ex = taskMap.get(e.taskId);
+          ex.hours += e.hours;
+          if (!ex.submittedAt || (e.submittedAt && e.submittedAt > ex.submittedAt)) ex.submittedAt = e.submittedAt;
+        } else {
+          taskMap.set(e.taskId, { ...e });
+        }
+      }
+      for (const e of taskMap.values()) {
+        const dt = new Date(e.submittedAt || s.submittedAt).toLocaleString('ru-RU');
+        rows.push([s.user.name, s.user.login || '', s.period.label, e.taskId, e.hours, dt].join(';'));
+      }
+    }
+    filename = 'overtime_report.csv';
   }
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-  res.setHeader('Content-Disposition', 'attachment; filename="overtime_report.csv"');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.send('\uFEFF' + rows.join('\n'));
 });
 
