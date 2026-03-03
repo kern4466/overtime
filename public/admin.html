@@ -1106,8 +1106,22 @@
     }
 
     tbody.innerHTML = subs.map(s => {
+      // Группируем записи по taskId, суммируя часы и сохраняя последний submittedAt
+      const taskMap = new Map();
+      s.entries.forEach(e => {
+        if (taskMap.has(e.taskId)) {
+          const ex = taskMap.get(e.taskId);
+          ex.hours += e.hours;
+          if (!ex.submittedAt || (e.submittedAt && e.submittedAt > ex.submittedAt)) {
+            ex.submittedAt = e.submittedAt;
+          }
+        } else {
+          taskMap.set(e.taskId, { ...e });
+        }
+      });
+
       const total = s.entries.reduce((h, e) => h + e.hours, 0);
-      const tasks = s.entries.map(e => {
+      const tasks = [...taskMap.values()].map(e => {
         const entryDate = e.submittedAt
           ? new Date(e.submittedAt).toLocaleString('ru-RU', {
               day: '2-digit', month: '2-digit', year: 'numeric',

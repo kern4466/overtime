@@ -841,7 +841,12 @@
       subs.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
 
       cont.innerHTML = subs.map(s => {
-        const totalMin = s.entries.reduce((acc, e) => acc + Math.round(e.hours * 60), 0);
+        // Суммируем по уникальным taskId (дедупликация)
+        const totalMap = new Map();
+        s.entries.forEach(e => {
+          totalMap.set(e.taskId, (totalMap.get(e.taskId) || 0) + e.hours);
+        });
+        const totalMin = [...totalMap.values()].reduce((acc, h) => acc + Math.round(h * 60), 0);
 
         // Группируем записи по дате подачи (если есть submittedAt на записи)
         const groups = new Map();
@@ -857,8 +862,17 @@
         });
 
         const groupsHtml = [...groups.entries()].map(([date, entries]) => {
-          const groupMin = entries.reduce((acc, e) => acc + Math.round(e.hours * 60), 0);
-          const rows = entries.map(e =>
+          // Группируем по taskId внутри каждой даты-подачи
+          const groupMap = new Map();
+          entries.forEach(e => {
+            if (groupMap.has(e.taskId)) {
+              groupMap.get(e.taskId).hours += e.hours;
+            } else {
+              groupMap.set(e.taskId, { ...e });
+            }
+          });
+          const groupMin = [...groupMap.values()].reduce((acc, e) => acc + Math.round(e.hours * 60), 0);
+          const rows = [...groupMap.values()].map(e =>
             `<div class="my-report-task">
               <span class="my-report-task-id">${e.taskId}</span>
               <span class="my-report-task-time">${formatHours(e.hours)}</span>
