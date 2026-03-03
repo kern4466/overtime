@@ -19,7 +19,6 @@
       --text-muted: #8892b0;
       --success: #10b981;
       --error: #ef4444;
-      --warning: #f59e0b;
       --radius: 12px;
       --radius-sm: 8px;
     }
@@ -69,10 +68,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    .header-subtitle {
-      color: var(--text-muted);
-      font-size: 14px;
-    }
+    .header-subtitle { color: var(--text-muted); font-size: 14px; }
 
     /* ─── Period banner ─── */
     .period-banner {
@@ -86,11 +82,10 @@
       margin-bottom: 32px;
       font-size: 14px;
       color: var(--text-muted);
-      max-width: 640px;
+      max-width: 520px;
       width: 100%;
       animation: fadeUp 0.5s ease 0.1s both;
     }
-
     .period-banner.visible { display: flex; }
 
     .period-badge {
@@ -105,103 +100,143 @@
       text-transform: uppercase;
     }
 
-    .period-dates {
-      color: var(--text);
-      font-weight: 600;
-    }
+    .period-dates { color: var(--text); font-weight: 600; }
 
-    .no-period {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
-      max-width: 640px;
-      width: 100%;
-    }
-
-    .no-period-icon { font-size: 48px; margin-bottom: 16px; }
-    .no-period h2 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
-
-    /* ─── Main card ─── */
+    /* ─── Card ─── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
       width: 100%;
-      max-width: 640px;
+      max-width: 520px;
       animation: fadeUp 0.5s ease 0.15s both;
     }
 
+    /* ─── Login form ─── */
+    #login-screen { display: block; }
+    #form-screen  { display: none; }
+
+    .login-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-input.error { border-color: var(--error); }
+
+    .error-msg {
+      font-size: 13px;
+      color: var(--error);
+      margin-top: 10px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ─── User bar (after login) ─── */
+    .user-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .user-info { display: flex; align-items: center; gap: 12px; }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .user-name { font-weight: 600; font-size: 15px; }
+    .user-login { font-size: 12px; color: var(--text-muted); }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover { border-color: var(--error); color: var(--error); }
+
+    /* ─── Section label ─── */
     .section-label {
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--text-muted);
-      margin-bottom: 10px;
+      margin-bottom: 14px;
     }
 
-    /* ─── Select ─── */
-    .select-wrapper {
-      position: relative;
-      margin-bottom: 28px;
+    /* ─── Entries ─── */
+    .entries-header {
+      display: grid;
+      grid-template-columns: 1fr 120px 40px;
+      gap: 8px;
+      margin-bottom: 6px;
     }
-
-    select {
-      width: 100%;
-      padding: 14px 16px;
-      padding-right: 44px;
-      background: var(--surface2);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 15px;
-      font-family: inherit;
-      appearance: none;
-      cursor: pointer;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .select-arrow {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
+    .entries-header span {
+      font-size: 11px;
+      font-weight: 600;
       color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding-left: 2px;
     }
 
-    /* ─── Entries section ─── */
-    #entries-section {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    #entries-section.visible {
-      display: block;
-      opacity: 1;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 24px 0;
-    }
-
-    /* ─── Entry row ─── */
-    .entries-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+    .entries-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
 
     .entry-row {
       display: grid;
@@ -210,7 +245,6 @@
       align-items: center;
       animation: rowIn 0.25s ease;
     }
-
     @keyframes rowIn {
       from { opacity: 0; transform: translateY(-8px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -227,26 +261,20 @@
       font-family: inherit;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-
     .entry-row input::placeholder { color: var(--text-muted); }
-
     .entry-row input:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
-
     .entry-row input.error { border-color: var(--error); }
     .entry-row input.valid { border-color: var(--success); }
 
-    input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
+    .entry-hours { text-align: center; }
 
     .btn-remove {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
       background: none;
       border: 1.5px solid transparent;
       border-radius: var(--radius-sm);
@@ -256,57 +284,24 @@
       transition: all 0.2s;
       flex-shrink: 0;
     }
-
-    .btn-remove:hover {
-      color: var(--error);
-      border-color: var(--error);
-      background: rgba(239,68,68,0.08);
-    }
-
-    .entries-header {
-      display: grid;
-      grid-template-columns: 1fr 120px 40px;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .entries-header span {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      padding-left: 2px;
-    }
+    .btn-remove:hover { color: var(--error); border-color: var(--error); background: rgba(239,68,68,0.08); }
 
     .btn-add {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: flex; align-items: center; gap: 8px;
       background: none;
       border: 1.5px dashed var(--border);
       border-radius: var(--radius-sm);
       color: var(--text-muted);
       padding: 10px 16px;
-      font-size: 14px;
-      font-family: inherit;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 4px;
+      font-size: 14px; font-family: inherit;
+      cursor: pointer; width: 100%; margin-top: 4px;
       transition: all 0.2s;
     }
-
-    .btn-add:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-glow);
-    }
+    .btn-add:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 
     /* ─── Total bar ─── */
     .total-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
@@ -314,119 +309,169 @@
       margin: 16px 0 24px;
       font-size: 14px;
     }
-
     .total-label { color: var(--text-muted); }
+    .total-value { font-weight: 700; font-size: 18px; color: var(--accent2); }
 
-    .total-value {
-      font-weight: 700;
-      font-size: 18px;
-      color: var(--accent2);
-    }
-
-    /* ─── Submit button ─── */
-    .btn-submit {
+    /* ─── Buttons ─── */
+    .btn-primary {
       width: 100%;
       padding: 16px;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       border: none;
       border-radius: var(--radius);
       color: white;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: inherit;
+      font-size: 16px; font-weight: 600; font-family: inherit;
       cursor: pointer;
       transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
       box-shadow: 0 4px 20px var(--accent-glow);
     }
+    .btn-primary:hover { opacity: 0.9; box-shadow: 0 6px 28px rgba(108,99,255,0.45); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .btn-submit:hover {
-      opacity: 0.9;
-      box-shadow: 0 6px 28px rgba(108,99,255,0.45);
+    /* ─── Divider ─── */
+    .divider { height: 1px; background: var(--border); margin: 4px 0 24px; }
+
+    /* ─── No period ─── */
+    .no-period {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-muted); max-width: 520px; width: 100%;
     }
+    .no-period-icon { font-size: 48px; margin-bottom: 16px; }
+    .no-period h2 { font-size: 18px; margin-bottom: 8px; color: var(--text); }
 
-    .btn-submit:active { transform: scale(0.98); }
-    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* ─── Success screen ─── */
+    .success-screen {
+      display: none;
+      flex-direction: column; align-items: center;
+      text-align: center; padding: 48px 32px; gap: 16px;
+      animation: fadeUp 0.5s ease;
+    }
+    .success-screen.visible { display: flex; }
+    .success-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.1));
+      border: 2px solid var(--success); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .success-title { font-size: 20px; font-weight: 700; }
+    .success-sub { color: var(--text-muted); font-size: 14px; }
+    .btn-again {
+      margin-top: 8px; padding: 12px 28px;
+      background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: var(--radius); color: var(--text);
+      font-size: 14px; font-family: inherit; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-again:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* ─── Toast / Alert ─── */
+    /* ─── Toast ─── */
     .toast {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
+      position: fixed; bottom: 32px; left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 24px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 24px;
+      font-size: 14px; display: flex; align-items: center; gap: 10px;
       box-shadow: 0 8px 40px rgba(0,0,0,0.5);
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 100;
-      max-width: 90vw;
-      white-space: nowrap;
+      z-index: 100; max-width: 90vw; white-space: nowrap;
     }
-
     .toast.visible { transform: translateX(-50%) translateY(0); }
     .toast.success { border-color: var(--success); }
     .toast.error   { border-color: var(--error); }
 
-    /* ─── Success state ─── */
-    .success-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 48px 32px;
-      gap: 16px;
-      animation: fadeUp 0.5s ease;
-    }
-
-    .success-screen.visible { display: flex; }
-
-    .success-icon {
-      width: 72px;
-      height: 72px;
-      background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.1));
-      border: 2px solid var(--success);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-    }
-
-    .success-title { font-size: 20px; font-weight: 700; }
-    .success-sub { color: var(--text-muted); font-size: 14px; }
-
-    .btn-again {
-      margin-top: 8px;
-      padding: 12px 28px;
-      background: var(--surface2);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 14px;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-again:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ─── Animations ─── */
     @keyframes fadeDown {
       from { opacity: 0; transform: translateY(-16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ─── Responsive ─── */
+    /* ─── Tabs ─── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 9px 12px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 13px; font-weight: 600; font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .tab-btn:not(.active):hover { color: var(--text); }
+
+    /* ─── My Reports ─── */
+    #my-reports-section { display: none; }
+
+    .my-report-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      animation: rowIn 0.25s ease;
+    }
+    .my-report-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .my-report-period {
+      font-size: 12px; font-weight: 700;
+      color: var(--accent2); text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .my-report-total {
+      font-size: 13px; font-weight: 700; color: var(--text);
+    }
+    .my-report-date {
+      font-size: 11px; color: var(--text-muted);
+    }
+    .my-report-group {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(46,51,82,0.6);
+    }
+    .my-report-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .my-report-group-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .my-report-group-total { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .my-report-tasks { display: flex; flex-direction: column; gap: 4px; }
+    .my-report-task {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px;
+    }
+    .my-report-task-id { font-family: monospace; color: var(--text); }
+    .my-report-task-time { color: var(--text-muted); }
+
+    .my-reports-empty {
+      text-align: center; padding: 40px 20px; color: var(--text-muted);
+    }
+    .my-reports-empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+    .spinner {
+      text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px;
+    }
+
     @media (max-width: 480px) {
       .card { padding: 20px 16px; }
       .entry-row { grid-template-columns: 1fr 90px 36px; }
@@ -455,51 +500,104 @@
 </div>
 
 <div class="card" id="main-card">
-  <div class="section-label">Сотрудник</div>
-  <div class="select-wrapper">
-    <select id="user-select">
-      <option value="">— Выбери своё имя —</option>
-    </select>
-    <svg class="select-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </div>
 
-  <div id="entries-section">
-    <div class="divider"></div>
+  <!-- ─── Login screen ─── -->
+  <div id="login-screen">
+    <div class="login-title">Войди в аккаунт</div>
 
-    <div class="section-label" style="margin-bottom:14px">Записи овертаймов</div>
-
-    <div class="entries-header">
-      <span>Номер таска</span>
-      <span>Часов</span>
-      <span></span>
+    <div class="form-group">
+      <label class="form-label" for="input-login">Логин</label>
+      <input class="form-input" type="text" id="input-login"
+        placeholder="ivanov" autocomplete="username" autocapitalize="none" spellcheck="false">
     </div>
 
-    <div class="entries-list" id="entries-list"></div>
-
-    <button class="btn-add" id="btn-add">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      Добавить строку
-    </button>
-
-    <div class="total-bar">
-      <span class="total-label">Итого часов:</span>
-      <span class="total-value" id="total-hours">0</span>
+    <div class="form-group">
+      <label class="form-label" for="input-password">Пароль</label>
+      <input class="form-input" type="password" id="input-password"
+        placeholder="••••••••" autocomplete="current-password">
     </div>
 
-    <button class="btn-submit" id="btn-submit">Отправить отчёт</button>
+    <div class="error-msg" id="login-error"></div>
+
+    <button class="btn-primary" id="btn-login" style="margin-top: 8px;">Войти</button>
   </div>
 
-  <div class="success-screen" id="success-screen">
-    <div class="success-icon">✓</div>
-    <div class="success-title">Отчёт отправлен!</div>
-    <div class="success-sub" id="success-sub"></div>
-    <button class="btn-again" id="btn-again">Отправить ещё</button>
-  </div>
-</div>
+  <!-- ─── Overtime form screen ─── -->
+  <div id="form-screen">
+
+    <!-- User bar -->
+    <div class="user-bar">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar"></div>
+        <div>
+          <div class="user-name" id="user-name-display"></div>
+          <div class="user-login" id="user-login-display"></div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btn-logout" title="Выйти">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M5 1H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M9 10l3-3-3-3M12 7H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Выйти
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-submit" onclick="switchTab('submit')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10l2-5 3 3 2-4 3 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Подать отчёт
+      </button>
+      <button class="tab-btn" id="tab-reports" onclick="switchTab('reports')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 7h4M5 9.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Мои отчёты
+      </button>
+    </div>
+
+    <!-- Entries -->
+    <div id="entries-section">
+      <div class="section-label">Записи овертаймов</div>
+
+      <div class="entries-header">
+        <span>Номер таска</span>
+        <span>Время</span>
+        <span></span>
+      </div>
+
+      <div class="entries-list" id="entries-list"></div>
+
+      <button class="btn-add" id="btn-add">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Добавить строку
+      </button>
+
+      <div class="total-bar">
+        <span class="total-label">Итого:</span>
+        <span class="total-value" id="total-hours">0m</span>
+      </div>
+
+      <button class="btn-primary" id="btn-submit">Отправить отчёт</button>
+    </div>
+
+    <!-- Success screen -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Отчёт отправлен!</div>
+      <div class="success-sub" id="success-sub"></div>
+      <button class="btn-again" id="btn-again">Отправить ещё</button>
+    </div>
+
+    <!-- My Reports section -->
+    <div id="my-reports-section">
+      <div class="section-label">Мои отчёты</div>
+      <div id="my-reports-content"><div class="spinner">Загрузка...</div></div>
+    </div>
+
+  </div><!-- /form-screen -->
+
+</div><!-- /card -->
 
 <div class="toast" id="toast"></div>
 
@@ -507,14 +605,62 @@
   const $ = id => document.getElementById(id);
 
   let activePeriod = null;
-  let users = [];
+  let authToken    = localStorage.getItem('ot_token');
+  let currentUser  = null; // { userId, userName, userLogin }
+  let activeTab    = 'submit';
 
-  // ─── Init ────────────────────────────────────────────────────────────────
+  // ─── Time helpers ─────────────────────────────────────────────────────────
+  function roundUpTo5(minutes) {
+    if (!minutes || minutes <= 0) return 0;
+    return Math.ceil(minutes / 5) * 5;
+  }
+
+  function formatMinutes(totalMin) {
+    if (!totalMin || totalMin <= 0) return '0m';
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    if (h === 0) return `${m}m`;
+    if (m === 0) return `${h}h`;
+    return `${h}h ${m}m`;
+  }
+
+  // decimal hours (e.g. 1.5) → "1h 30m"
+  function formatHours(decimalHours) {
+    const totalMin = Math.round(decimalHours * 60);
+    return formatMinutes(totalMin);
+  }
+
+  // Парсит свободный ввод в минуты:
+  // "90" → 90, "90m" → 90, "1h" → 60, "1h 30m" → 90,
+  // "1h30m" → 90, "1.5h" → 90, "1:30" → 90, "1,5" → 90
+  function parseTimeInput(str) {
+    if (!str || !str.trim()) return 0;
+    const s = str.trim().toLowerCase().replace(',', '.');
+
+    // "1h 30m" / "1h30m" / "1.5h 30m" (hours + optional minutes)
+    const hm = s.match(/^(\d+(?:\.\d+)?)\s*h\s*(\d+)?\s*m?$/);
+    if (hm) {
+      return Math.round(parseFloat(hm[1]) * 60) + (parseInt(hm[2]) || 0);
+    }
+
+    // "30m" / "90m"
+    const mOnly = s.match(/^(\d+)\s*m$/);
+    if (mOnly) return parseInt(mOnly[1]);
+
+    // "1:30"
+    const colon = s.match(/^(\d+):(\d{1,2})$/);
+    if (colon) return parseInt(colon[1]) * 60 + parseInt(colon[2]);
+
+    // plain number → minutes
+    const num = parseFloat(s);
+    if (!isNaN(num) && num > 0) return Math.round(num);
+
+    return 0;
+  }
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
   async function init() {
-    const [period, usersData] = await Promise.all([
-      fetch('/api/period').then(r => r.json()),
-      fetch('/api/users').then(r => r.json())
-    ]);
+    const period = await fetch('/api/period').then(r => r.json());
 
     if (!period) {
       $('no-period').style.display = 'block';
@@ -523,100 +669,283 @@
     }
 
     activePeriod = period;
-    users = usersData;
-
-    // Period banner
-    const banner = $('period-banner');
     $('period-label').textContent = period.label;
-    banner.classList.add('visible');
+    $('period-banner').classList.add('visible');
 
-    // Users dropdown
-    const sel = $('user-select');
-    users.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u.id;
-      opt.textContent = u.name;
-      sel.appendChild(opt);
-    });
+    // Проверяем существующий токен
+    if (authToken) {
+      try {
+        const me = await authFetch('/api/auth/me');
+        if (me.userId) {
+          currentUser = me;
+          showFormScreen();
+          return;
+        }
+      } catch {
+        authToken = null;
+        localStorage.removeItem('ot_token');
+      }
+    }
 
-    sel.addEventListener('change', onUserChange);
+    showLoginScreen();
   }
 
-  function onUserChange() {
-    const section = $('entries-section');
-    const success = $('success-screen');
-    success.classList.remove('visible');
+  // ─── Auth helpers ─────────────────────────────────────────────────────────
+  async function authFetch(url, opts = {}) {
+    opts.headers = {
+      'Content-Type': 'application/json',
+      ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {}),
+      ...(opts.headers || {})
+    };
+    const res = await fetch(url, opts);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error || res.statusText);
+    }
+    return res.json();
+  }
 
-    if (!this.value) {
-      section.classList.remove('visible');
+  // ─── Login ────────────────────────────────────────────────────────────────
+  function showLoginScreen() {
+    $('login-screen').style.display = 'block';
+    $('form-screen').style.display  = 'none';
+    setTimeout(() => $('input-login').focus(), 100);
+  }
+
+  async function doLogin() {
+    const login    = $('input-login').value.trim();
+    const password = $('input-password').value;
+    const errEl    = $('login-error');
+    const btn      = $('btn-login');
+
+    errEl.classList.remove('visible');
+
+    if (!login || !password) {
+      errEl.textContent = 'Введите логин и пароль';
+      errEl.classList.add('visible');
       return;
     }
 
+    btn.disabled = true;
+    btn.textContent = 'Вход...';
+
+    try {
+      const data = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login, password })
+      }).then(async r => {
+        if (!r.ok) throw new Error((await r.json()).error);
+        return r.json();
+      });
+
+      authToken   = data.token;
+      currentUser = { userId: data.userId, userName: data.userName, userLogin: data.userLogin };
+      localStorage.setItem('ot_token', authToken);
+
+      $('input-password').value = '';
+      showFormScreen();
+    } catch (err) {
+      errEl.textContent = err.message || 'Ошибка входа';
+      errEl.classList.add('visible');
+      $('input-password').value = '';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Войти';
+    }
+  }
+
+  $('btn-login').addEventListener('click', doLogin);
+  [$('input-login'), $('input-password')].forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  });
+
+  // ─── Logout ───────────────────────────────────────────────────────────────
+  $('btn-logout').addEventListener('click', async () => {
+    try { await authFetch('/api/auth/logout', { method: 'POST' }); } catch {}
+    authToken   = null;
+    currentUser = null;
+    localStorage.removeItem('ot_token');
+    clearEntries();
+    $('success-screen').classList.remove('visible');
+    $('entries-section').style.display = 'block';
+    $('my-reports-section').style.display = 'none';
+    showLoginScreen();
+  });
+
+  // ─── Form screen ──────────────────────────────────────────────────────────
+  function showFormScreen() {
+    $('login-screen').style.display = 'none';
+    $('form-screen').style.display  = 'block';
+    $('success-screen').classList.remove('visible');
+    $('entries-section').style.display = 'block';
+    $('my-reports-section').style.display = 'none';
+    activeTab = 'submit';
+    $('tab-submit').classList.add('active');
+    $('tab-reports').classList.remove('active');
+
+    // Инициалы для аватара
+    const words = currentUser.userName.split(' ');
+    const initials = words.length >= 2
+      ? words[0][0] + words[1][0]
+      : currentUser.userName.slice(0, 2);
+    $('user-avatar').textContent        = initials.toUpperCase();
+    $('user-name-display').textContent  = currentUser.userName;
+    $('user-login-display').textContent = '@' + currentUser.userLogin;
+
     clearEntries();
     addRow();
-    section.classList.add('visible');
-    // Фокус на первый инпут
     setTimeout(() => {
       const first = document.querySelector('.entry-task');
       if (first) first.focus();
     }, 100);
   }
 
-  // ─── Entries ─────────────────────────────────────────────────────────────
+  // ─── Tabs ─────────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    activeTab = tab;
+    if (tab === 'submit') {
+      $('tab-submit').classList.add('active');
+      $('tab-reports').classList.remove('active');
+      $('entries-section').style.display = 'block';
+      $('success-screen').classList.remove('visible');
+      $('my-reports-section').style.display = 'none';
+    } else {
+      $('tab-submit').classList.remove('active');
+      $('tab-reports').classList.add('active');
+      $('entries-section').style.display = 'none';
+      $('success-screen').classList.remove('visible');
+      $('my-reports-section').style.display = 'block';
+      loadMyReports();
+    }
+  }
+
+  // ─── My Reports ───────────────────────────────────────────────────────────
+  async function loadMyReports() {
+    const cont = $('my-reports-content');
+    cont.innerHTML = '<div class="spinner">Загрузка...</div>';
+
+    try {
+      const subs = await authFetch('/api/my-submissions');
+
+      if (!subs.length) {
+        cont.innerHTML = `
+          <div class="my-reports-empty">
+            <div class="my-reports-empty-icon">📭</div>
+            <div>Ты ещё не подавал овертаймы</div>
+          </div>`;
+        return;
+      }
+
+      // Sort newest first
+      subs.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+      cont.innerHTML = subs.map(s => {
+        const totalMin = s.entries.reduce((acc, e) => acc + Math.round(e.hours * 60), 0);
+
+        // Группируем записи по дате подачи (если есть submittedAt на записи)
+        const groups = new Map();
+        s.entries.forEach(e => {
+          const key = e.submittedAt
+            ? new Date(e.submittedAt).toLocaleString('ru-RU', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+              })
+            : 'Ранее';
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key).push(e);
+        });
+
+        const groupsHtml = [...groups.entries()].map(([date, entries]) => {
+          const groupMin = entries.reduce((acc, e) => acc + Math.round(e.hours * 60), 0);
+          const rows = entries.map(e =>
+            `<div class="my-report-task">
+              <span class="my-report-task-id">${e.taskId}</span>
+              <span class="my-report-task-time">${formatHours(e.hours)}</span>
+            </div>`
+          ).join('');
+          return `
+            <div class="my-report-group">
+              <div class="my-report-group-header">
+                <span class="my-report-date">${date}</span>
+                <span class="my-report-group-total">${formatMinutes(groupMin)}</span>
+              </div>
+              <div class="my-report-tasks">${rows}</div>
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="my-report-card">
+            <div class="my-report-header">
+              <span class="my-report-period">${s.period.label}</span>
+              <span class="my-report-total">${formatMinutes(totalMin)}</span>
+            </div>
+            ${groupsHtml}
+          </div>`;
+      }).join('');
+    } catch (err) {
+      cont.innerHTML = `<div class="my-reports-empty" style="color:var(--error)">Ошибка загрузки: ${err.message}</div>`;
+    }
+  }
+
+  // ─── Entries ──────────────────────────────────────────────────────────────
   function clearEntries() {
     $('entries-list').innerHTML = '';
     updateTotal();
   }
 
-  function addRow(taskVal = '', hoursVal = '') {
+  function addRow(taskVal = '', timeVal = '') {
     const list = $('entries-list');
-    const row = document.createElement('div');
+    const row  = document.createElement('div');
     row.className = 'entry-row';
 
     const taskInput = document.createElement('input');
-    taskInput.type = 'text';
-    taskInput.placeholder = 'OSHD-12345';
-    taskInput.className = 'entry-task';
-    taskInput.value = taskVal;
+    taskInput.type         = 'text';
+    taskInput.placeholder  = 'OSHD-12345';
+    taskInput.className    = 'entry-task';
+    taskInput.value        = taskVal;
     taskInput.autocomplete = 'off';
-    taskInput.spellcheck = false;
+    taskInput.spellcheck   = false;
 
-    // Форматирование на лету — OSHD в верхний регистр
     taskInput.addEventListener('input', () => {
-      const v = taskInput.value.toUpperCase();
-      taskInput.value = v;
+      taskInput.value = taskInput.value.toUpperCase();
       validateTask(taskInput);
-      // Если заполнены оба поля в последней строке — добавляем новую
       autoAddRow();
     });
-
     taskInput.addEventListener('blur', () => validateTask(taskInput));
 
-    const hoursInput = document.createElement('input');
-    hoursInput.type = 'number';
-    hoursInput.placeholder = '0';
-    hoursInput.className = 'entry-hours';
-    hoursInput.min = '0.5';
-    hoursInput.max = '24';
-    hoursInput.step = '0.5';
-    hoursInput.value = hoursVal;
+    const timeInput = document.createElement('input');
+    timeInput.type        = 'text';
+    timeInput.placeholder = '1h 30m';
+    timeInput.className   = 'entry-hours';
+    timeInput.value       = timeVal;
+    timeInput.autocomplete = 'off';
+    timeInput.inputMode   = 'text';
 
-    hoursInput.addEventListener('input', () => {
+    timeInput.addEventListener('input', () => { updateTotal(); autoAddRow(); });
+    timeInput.addEventListener('blur', () => {
+      const minutes = parseTimeInput(timeInput.value);
+      if (minutes > 0) {
+        const rounded = roundUpTo5(minutes);
+        timeInput.value = formatMinutes(rounded);
+        timeInput.classList.remove('error');
+      } else if (timeInput.value.trim()) {
+        timeInput.classList.add('error');
+      } else {
+        timeInput.value = '';
+      }
       updateTotal();
       autoAddRow();
     });
 
     const removeBtn = document.createElement('button');
     removeBtn.className = 'btn-remove';
-    removeBtn.title = 'Удалить строку';
+    removeBtn.title     = 'Удалить строку';
     removeBtn.innerHTML = '×';
-    removeBtn.addEventListener('click', () => {
-      row.remove();
-      updateTotal();
-    });
+    removeBtn.addEventListener('click', () => { row.remove(); updateTotal(); });
 
     row.appendChild(taskInput);
-    row.appendChild(hoursInput);
+    row.appendChild(timeInput);
     row.appendChild(removeBtn);
     list.appendChild(row);
   }
@@ -625,91 +954,100 @@
     const rows = document.querySelectorAll('.entry-row');
     const last = rows[rows.length - 1];
     if (!last) return;
-    const task = last.querySelector('.entry-task').value.trim();
-    const hours = last.querySelector('.entry-hours').value;
-    if (task && hours) {
+    const task    = last.querySelector('.entry-task').value.trim();
+    const timeVal = last.querySelector('.entry-hours').value.trim();
+    // Add a new empty row as soon as EITHER field in the last row has any content
+    if (task || timeVal) {
       addRow();
-      // Фокус на таск нового ряда
-      const newRow = document.querySelector('.entry-row:last-child .entry-task');
-      if (newRow) newRow.focus();
+      // No auto-focus — user is still typing in the current row
     }
   }
 
   function validateTask(input) {
     const v = input.value.trim();
     if (!v) { input.className = 'entry-task'; return; }
-    const ok = /^OSHD-\d+$/.test(v);
-    input.className = 'entry-task ' + (ok ? 'valid' : 'error');
+    input.className = 'entry-task ' + (/^OSHD-\d+$/.test(v) ? 'valid' : 'error');
   }
 
   function updateTotal() {
     const inputs = document.querySelectorAll('.entry-hours');
-    let total = 0;
-    inputs.forEach(i => { total += parseFloat(i.value) || 0; });
-    $('total-hours').textContent = total % 1 === 0 ? total : total.toFixed(1);
+    let totalMin = 0;
+    inputs.forEach(i => { totalMin += parseTimeInput(i.value); });
+    $('total-hours').textContent = formatMinutes(totalMin);
   }
 
   $('btn-add').addEventListener('click', () => addRow());
 
   // ─── Submit ───────────────────────────────────────────────────────────────
   $('btn-submit').addEventListener('click', async () => {
-    const userId = $('user-select').value;
-    if (!userId) { showToast('Выбери сотрудника', 'error'); return; }
-
-    const rows = document.querySelectorAll('.entry-row');
+    const rows    = document.querySelectorAll('.entry-row');
     const entries = [];
-    const taskRe = /^OSHD-\d+$/;
-    let hasError = false;
+    const taskRe  = /^OSHD-\d+$/;
+    let hasError  = false;
 
     rows.forEach(row => {
-      const task = row.querySelector('.entry-task').value.trim();
-      const hours = parseFloat(row.querySelector('.entry-hours').value);
-
-      if (!task && !hours) return; // пустая строка — игнорим
+      const task    = row.querySelector('.entry-task').value.trim();
+      const timeEl  = row.querySelector('.entry-hours');
+      const minutes = parseTimeInput(timeEl.value);
+      if (!task && !minutes) return;
 
       if (!taskRe.test(task)) {
         row.querySelector('.entry-task').className = 'entry-task error';
         hasError = true;
         return;
       }
-      if (!hours || hours <= 0) {
-        row.querySelector('.entry-hours').style.borderColor = 'var(--error)';
+      if (minutes <= 0) {
+        timeEl.classList.add('error');
         hasError = true;
         return;
       }
-
-      entries.push({ taskId: task, hours });
+      // Round up to nearest 5 min, convert to hours for storage
+      const rounded = roundUpTo5(minutes);
+      timeEl.value = formatMinutes(rounded); // normalize display
+      entries.push({ taskId: task, hours: rounded / 60 });
     });
 
     if (hasError) { showToast('Исправь ошибки в форме', 'error'); return; }
     if (!entries.length) { showToast('Добавь хотя бы одну запись', 'error'); return; }
 
+    // Merge same-taskId entries (e.g. user listed OSHD-123 twice in one batch)
+    const mergedMap = new Map();
+    for (const e of entries) {
+      if (mergedMap.has(e.taskId)) {
+        mergedMap.get(e.taskId).hours += e.hours;
+      } else {
+        mergedMap.set(e.taskId, { ...e });
+      }
+    }
+    const entriesToSend = [...mergedMap.values()];
+
     const btn = $('btn-submit');
-    btn.disabled = true;
+    btn.disabled    = true;
     btn.textContent = 'Отправка...';
 
     try {
-      const res = await fetch('/api/submit', {
+      await authFetch('/api/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: Number(userId), periodId: activePeriod.id, entries })
+        body: JSON.stringify({ periodId: activePeriod.id, entries: entriesToSend })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      const totalHours = entries.reduce((s, e) => s + e.hours, 0);
-      const user = users.find(u => u.id === Number(userId));
-
-      $('entries-section').classList.remove('visible');
-      const ss = $('success-screen');
-      $('success-sub').textContent = `${user.name} — ${entries.length} задач, ${totalHours} ч. за ${activePeriod.label}`;
-      ss.classList.add('visible');
+      const totalMin = entriesToSend.reduce((s, e) => s + Math.round(e.hours * 60), 0);
+      $('entries-section').style.display = 'none';
+      $('success-sub').textContent =
+        `${currentUser.userName} — ${entriesToSend.length} задач, ${formatMinutes(totalMin)} за ${activePeriod.label}`;
+      $('success-screen').classList.add('visible');
       showToast('Отчёт успешно отправлен!', 'success');
     } catch (err) {
-      showToast(err.message || 'Ошибка при отправке', 'error');
+      if (err.message === 'Необходима авторизация') {
+        showToast('Сессия истекла, войди снова', 'error');
+        authToken = null;
+        localStorage.removeItem('ot_token');
+        showLoginScreen();
+      } else {
+        showToast(err.message || 'Ошибка при отправке', 'error');
+      }
     } finally {
-      btn.disabled = false;
+      btn.disabled    = false;
       btn.textContent = 'Отправить отчёт';
     }
   });
@@ -718,13 +1056,13 @@
     $('success-screen').classList.remove('visible');
     clearEntries();
     addRow();
-    $('entries-section').classList.add('visible');
+    $('entries-section').style.display = 'block';
   });
 
   // ─── Toast ────────────────────────────────────────────────────────────────
-  let toastTimer = null;
+  let toastTimer;
   function showToast(msg, type = 'info') {
-    const t = $('toast');
+    const t    = $('toast');
     const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
     t.innerHTML = `<span>${icon}</span> ${msg}`;
     t.className = `toast visible ${type}`;

@@ -400,6 +400,14 @@
 
     .task-hours { color: var(--text-muted); font-size: 12px; }
 
+    .task-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: auto;
+      white-space: nowrap;
+      opacity: 0.7;
+    }
+
     /* ─── Form inline ─── */
     .inline-form {
       display: flex;
@@ -545,6 +553,99 @@
       .sidebar { display: none; }
       .main { margin-left: 0; padding: 16px; max-width: 100vw; }
     }
+
+    /* ─── Import modal ─── */
+    .import-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+
+    .import-tab {
+      flex: 1;
+      padding: 8px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .import-tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .csv-drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .csv-drop-zone:hover,
+    .csv-drop-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .csv-drop-icon { font-size: 32px; margin-bottom: 10px; }
+    .csv-drop-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .csv-drop-sub { font-size: 12px; color: var(--text-muted); }
+
+    .import-preview-list {
+      max-height: 160px;
+      overflow-y: auto;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 0;
+    }
+
+    .preview-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      font-size: 13px;
+      transition: background 0.1s;
+    }
+
+    .preview-item:hover { background: rgba(255,255,255,0.03); }
+
+    .preview-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .preview-dot-new  { background: var(--success); }
+    .preview-dot-dup  { background: var(--warning); }
+
+    .preview-item-name { flex: 1; }
+
+    .preview-item-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-new { background: rgba(16,185,129,0.15); color: var(--success); }
+    .badge-dup { background: rgba(245,158,11,0.15); color: var(--warning); }
 
     /* ─── Scrollbar ─── */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -694,7 +795,7 @@
               <th>Период</th>
               <th>Задачи</th>
               <th>Итого часов</th>
-              <th>Дата подачи</th>
+              <th>Обновлён</th>
               <th></th>
             </tr>
           </thead>
@@ -711,7 +812,10 @@
         <div class="page-title">Сотрудники</div>
         <div class="page-subtitle">Управление списком сотрудников</div>
       </div>
-      <button class="btn btn-primary" onclick="openAddUser()">+ Добавить</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-ghost" onclick="openImportUsers()">↑ Импортировать</button>
+        <button class="btn btn-primary" onclick="openAddUser()">+ Добавить</button>
+      </div>
     </div>
 
     <div class="card">
@@ -742,7 +846,17 @@
     <div class="modal-title">Добавить сотрудника</div>
     <div class="form-group">
       <label class="form-label">ФИО</label>
-      <input class="form-input" type="text" id="user-name-input" placeholder="Иванов Иван Иванович">
+      <input class="form-input" type="text" id="user-name-input" placeholder="Иванов Иван Иванович"
+        oninput="suggestLogin()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Логин</label>
+      <input class="form-input" type="text" id="user-login-input" placeholder="ivanov"
+        autocapitalize="none" spellcheck="false">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Пароль</label>
+      <input class="form-input" type="text" id="user-password-input" placeholder="Временный пароль">
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-user')">Отмена</button>
@@ -751,24 +865,103 @@
   </div>
 </div>
 
+<!-- ─── Reset password modal ─── -->
+<div class="modal-overlay" id="modal-reset-password">
+  <div class="modal">
+    <div class="modal-title">Сброс пароля</div>
+    <div style="color: var(--text-muted); font-size:14px; margin-bottom:16px;">
+      Сотрудник: <strong id="reset-user-name" style="color:var(--text);"></strong>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Новый пароль</label>
+      <input class="form-input" type="text" id="reset-password-input" placeholder="Новый пароль">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-reset-password')">Отмена</button>
+      <button class="btn btn-primary" onclick="doResetPassword()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-period">
   <div class="modal">
     <div class="modal-title">Новый период</div>
-    <div class="form-group">
-      <label class="form-label">Название (необязательно)</label>
-      <input class="form-input" type="text" id="period-label-input" placeholder="Январь 2025">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Начало</label>
+        <input class="form-input" type="date" id="period-start-input" oninput="updatePeriodPreview()">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Конец</label>
+        <input class="form-input" type="date" id="period-end-input" oninput="updatePeriodPreview()">
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Начало периода</label>
-      <input class="form-input" type="date" id="period-start-input">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Конец периода</label>
-      <input class="form-input" type="date" id="period-end-input">
+    <div id="period-preview" style="display:none; margin-top:14px; padding:10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:13px; color:var(--text-muted);">
+      Лейбл: <span id="period-preview-label" style="color:var(--accent2); font-weight:600;"></span>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-period')">Отмена</button>
       <button class="btn btn-primary" onclick="addPeriod()">Создать и активировать</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Import Users Modal ─── -->
+<div class="modal-overlay" id="modal-import">
+  <div class="modal" style="max-width: 560px;">
+    <div class="modal-title">Импорт сотрудников</div>
+
+    <!-- Tabs -->
+    <div class="import-tabs">
+      <button class="import-tab active" data-tab="text" onclick="switchImportTab('text', this)">Текст</button>
+      <button class="import-tab" data-tab="csv" onclick="switchImportTab('csv', this)">CSV-файл</button>
+    </div>
+
+    <!-- Text tab -->
+    <div id="import-tab-text">
+      <div class="form-label" style="margin-bottom: 7px;">Вставь данные — по одному на строку</div>
+      <textarea
+        class="form-input"
+        id="import-textarea"
+        rows="8"
+        placeholder="Формат 1 — только имя (логин авто):&#10;Иванов Иван Иванович&#10;&#10;Формат 2 — логин + имя:&#10;a.ivanov Иванов Иван Иванович&#10;o.petrov Петрова Анна Сергеевна"
+        style="resize: vertical; font-size: 13px; line-height: 1.6;"
+        oninput="updateImportPreview()"
+      ></textarea>
+    </div>
+
+    <!-- CSV tab -->
+    <div id="import-tab-csv" style="display:none;">
+      <div class="csv-drop-zone" id="csv-drop-zone" onclick="$('csv-file-input').click()">
+        <div class="csv-drop-icon">📄</div>
+        <div class="csv-drop-title">Кликни или перетащи CSV</div>
+        <div class="csv-drop-sub">Один столбец с ФИО, без заголовка. Кодировка UTF-8.</div>
+      </div>
+      <input type="file" id="csv-file-input" accept=".csv,.txt" style="display:none" onchange="handleCSVFile(this)">
+      <div id="csv-file-name" style="font-size:12px; color: var(--text-muted); margin-top: 8px; text-align:center;"></div>
+    </div>
+
+    <!-- Preview -->
+    <div id="import-preview" style="display:none; margin-top: 16px;">
+      <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;">
+        Найдено: <span id="preview-count" style="color: var(--accent2);"></span>
+      </div>
+      <div id="preview-list" class="import-preview-list"></div>
+    </div>
+
+    <!-- Default password -->
+    <div class="form-group" style="margin-top:16px;">
+      <label class="form-label">Пароль для всех новых сотрудников</label>
+      <input class="form-input" type="text" id="import-default-password"
+        placeholder="Например: Overtime2025!" autocomplete="off">
+      <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+        Все новые сотрудники получат этот пароль. Если указан явный логин — он используется напрямую; иначе логин генерируется из фамилии. Для уже существующих сотрудников с явным логином — логин будет обновлён.
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-import')">Отмена</button>
+      <button class="btn btn-primary" id="btn-do-import" onclick="doImport()" disabled>Импортировать</button>
     </div>
   </div>
 </div>
@@ -797,6 +990,17 @@
     if (name === 'users')   loadUsers();
     if (name === 'periods') loadPeriods();
     if (name === 'dashboard') loadDashboard();
+  }
+
+  // ─── Time helpers ─────────────────────────────────────────────────────────
+  function formatHours(decimalHours) {
+    const totalMin = Math.round(decimalHours * 60);
+    if (!totalMin || totalMin <= 0) return '0m';
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    if (h === 0) return `${m}m`;
+    if (m === 0) return `${h}h`;
+    return `${h}h ${m}m`;
   }
 
   // ─── API helpers ──────────────────────────────────────────────────────────
@@ -835,7 +1039,7 @@
     $('stat-total').textContent = activeSubs.length;
     $('stat-users').textContent = new Set(activeSubs.map(s => s.userId)).size;
     $('stat-users-sub').textContent = `из ${users.length} зарегистрированных`;
-    $('stat-hours').textContent = totalHours % 1 === 0 ? totalHours : totalHours.toFixed(1);
+    $('stat-hours').textContent = formatHours(totalHours);
     $('stat-tasks').textContent = uniqueTasks;
 
     // Последние 10 отчётов
@@ -903,11 +1107,21 @@
 
     tbody.innerHTML = subs.map(s => {
       const total = s.entries.reduce((h, e) => h + e.hours, 0);
-      const tasks = s.entries.map(e =>
-        `<div class="task-item"><span class="task-id">${e.taskId}</span><span class="task-hours">${e.hours} ч</span></div>`
-      ).join('');
+      const tasks = s.entries.map(e => {
+        const entryDate = e.submittedAt
+          ? new Date(e.submittedAt).toLocaleString('ru-RU', {
+              day: '2-digit', month: '2-digit', year: 'numeric',
+              hour: '2-digit', minute: '2-digit'
+            })
+          : '—';
+        return `<div class="task-item">
+          <span class="task-id">${e.taskId}</span>
+          <span class="task-hours">${formatHours(e.hours)}</span>
+          <span class="task-date">${entryDate}</span>
+        </div>`;
+      }).join('');
 
-      const date = new Date(s.submittedAt).toLocaleString('ru-RU', {
+      const date = new Date(s.updatedAt || s.submittedAt).toLocaleString('ru-RU', {
         day: '2-digit', month: '2-digit', year: 'numeric',
         hour: '2-digit', minute: '2-digit'
       });
@@ -920,7 +1134,7 @@
         <td><strong>${s.user.name}</strong></td>
         <td><span class="tag tag-purple">${s.period.label}</span></td>
         <td><div class="task-list">${tasks}</div></td>
-        <td><strong>${total % 1 === 0 ? total : total.toFixed(1)} ч</strong></td>
+        <td><strong>${formatHours(total)}</strong></td>
         <td style="color:var(--text-muted); font-size:13px">${date}</td>
         ${actions}
       </tr>`;
@@ -964,9 +1178,16 @@
       <div class="list-row">
         <div class="list-row-info">
           <div class="list-row-name">${u.name}</div>
-          <div class="list-row-sub">ID: ${u.id}</div>
+          <div class="list-row-sub" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-family:monospace; font-size:12px; background:var(--surface2); padding:1px 8px; border-radius:4px; color:var(--accent2);">${u.login || '—'}</span>
+            ${u.hasPassword
+              ? '<span style="color:var(--success); font-size:12px;">✓ пароль задан</span>'
+              : '<span style="color:var(--warning); font-size:12px;">⚠ пароль не задан</span>'
+            }
+          </div>
         </div>
         <div class="list-row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openResetPassword(${u.id}, '${u.name.replace(/'/g,"\\'")}')">Сброс пароля</button>
           <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Удалить</button>
         </div>
       </div>
@@ -974,18 +1195,74 @@
   }
 
   function openAddUser() {
-    $('user-name-input').value = '';
+    $('user-name-input').value     = '';
+    $('user-login-input').value    = '';
+    $('user-password-input').value = '';
     openModal('modal-user');
     setTimeout(() => $('user-name-input').focus(), 100);
   }
 
-  async function addUser() {
+  // Авто-подсказка логина при вводе имени
+  let suggestTimer;
+  async function suggestLogin() {
+    clearTimeout(suggestTimer);
     const name = $('user-name-input').value.trim();
-    if (!name) { showToast('Введите имя', 'error'); return; }
+    if (!name) return;
+    suggestTimer = setTimeout(async () => {
+      try {
+        const { login } = await api('/users/suggest-login', {
+          method: 'POST',
+          body: JSON.stringify({ name })
+        });
+        // Подставляем только если поле пустое или было авто-заполнено
+        if (!$('user-login-input').dataset.manualEdit) {
+          $('user-login-input').value = login;
+        }
+      } catch {}
+    }, 300);
+  }
+
+  // Флаг ручного редактирования логина
+  $('user-login-input').addEventListener('input', () => {
+    $('user-login-input').dataset.manualEdit = '1';
+  });
+
+  async function addUser() {
+    const name     = $('user-name-input').value.trim();
+    const login    = $('user-login-input').value.trim();
+    const password = $('user-password-input').value.trim();
+    if (!name)     { showToast('Введите имя', 'error');    return; }
+    if (!login)    { showToast('Введите логин', 'error');  return; }
+    if (!password) { showToast('Введите пароль', 'error'); return; }
     try {
-      await api('/users', { method: 'POST', body: JSON.stringify({ name }) });
+      await api('/users', { method: 'POST', body: JSON.stringify({ name, login, password }) });
       closeModal('modal-user');
-      showToast(`${name} добавлен`, 'success');
+      showToast(`${name} добавлен (логин: ${login})`, 'success');
+      loadUsers();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ─── Reset password ────────────────────────────────────────────────────────
+  let resetUserId = null;
+
+  function openResetPassword(id, name) {
+    resetUserId = id;
+    $('reset-user-name').textContent  = name;
+    $('reset-password-input').value   = '';
+    openModal('modal-reset-password');
+    setTimeout(() => $('reset-password-input').focus(), 100);
+  }
+
+  async function doResetPassword() {
+    const password = $('reset-password-input').value.trim();
+    if (!password) { showToast('Введите пароль', 'error'); return; }
+    try {
+      await api(`/users/${resetUserId}/password`, {
+        method: 'PATCH',
+        body: JSON.stringify({ password })
+      });
+      closeModal('modal-reset-password');
+      showToast('Пароль обновлён', 'success');
       loadUsers();
     } catch (e) { showToast(e.message, 'error'); }
   }
@@ -1015,7 +1292,7 @@
           <div class="dot ${p.active ? 'dot-green' : 'dot-gray'}"></div>
           <div>
             <div class="list-row-name">${p.label}</div>
-            <div class="list-row-sub">${p.startDate} — ${p.endDate}</div>
+            <div class="list-row-sub">${buildClientLabel(p.startDate, p.endDate)}</div>
           </div>
           ${p.active ? '<span class="tag tag-green" style="margin-left:4px">Активен</span>' : ''}
         </div>
@@ -1028,20 +1305,43 @@
   }
 
   function openAddPeriod() {
-    $('period-label-input').value = '';
     $('period-start-input').value = '';
     $('period-end-input').value = '';
+    $('period-preview').style.display = 'none';
     openModal('modal-period');
+    setTimeout(() => $('period-start-input').focus(), 100);
+  }
+
+  // Показывает авто-лейбл прямо в модалке пока вводишь даты
+  function updatePeriodPreview() {
+    const s = $('period-start-input').value;
+    const e = $('period-end-input').value;
+    if (!s || !e) { $('period-preview').style.display = 'none'; return; }
+    const label = buildClientLabel(s, e);
+    $('period-preview-label').textContent = label;
+    $('period-preview').style.display = 'block';
+  }
+
+  // Клиентская копия buildPeriodLabel из db.js
+  function buildClientLabel(startDate, endDate) {
+    const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+    const [sy, sm, sd] = startDate.split('-').map(Number);
+    const [ey, em, ed] = endDate.split('-').map(Number);
+    if (sy === ey) {
+      return `${sd} ${months[sm-1]} – ${ed} ${months[em-1]} ${ey}`;
+    } else {
+      return `${sd} ${months[sm-1]} ${sy} – ${ed} ${months[em-1]} ${ey}`;
+    }
   }
 
   async function addPeriod() {
-    const label = $('period-label-input').value.trim();
     const startDate = $('period-start-input').value;
     const endDate = $('period-end-input').value;
     if (!startDate || !endDate) { showToast('Укажите даты', 'error'); return; }
     if (startDate >= endDate) { showToast('Начало должно быть раньше конца', 'error'); return; }
     try {
-      await api('/periods', { method: 'POST', body: JSON.stringify({ startDate, endDate, label }) });
+      // label не передаём — сервер сгенерирует сам через buildPeriodLabel
+      await api('/periods', { method: 'POST', body: JSON.stringify({ startDate, endDate }) });
       closeModal('modal-period');
       showToast('Период создан и активирован', 'success');
       loadPeriods();
@@ -1071,7 +1371,10 @@
   });
 
   // Enter в инпутах модалок
-  $('user-name-input').addEventListener('keydown', e => { if (e.key === 'Enter') addUser(); });
+  ['user-name-input','user-login-input','user-password-input'].forEach(id => {
+    $(id).addEventListener('keydown', e => { if (e.key === 'Enter') addUser(); });
+  });
+  $('reset-password-input').addEventListener('keydown', e => { if (e.key === 'Enter') doResetPassword(); });
 
   // ─── Toast ────────────────────────────────────────────────────────────────
   let toastTimer;
@@ -1082,6 +1385,260 @@
     t.className = `toast visible ${type}`;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('visible'), 3200);
+  }
+
+  // ─── Import Users ─────────────────────────────────────────────────────────
+  let importItems = []; // итоговый массив [{name, login?}] для отправки
+
+  function openImportUsers() {
+    $('import-textarea').value         = '';
+    $('csv-file-name').textContent     = '';
+    $('import-default-password').value = '';
+    $('import-preview').style.display  = 'none';
+    $('btn-do-import').disabled        = true;
+    importItems = [];
+    switchImportTab('text', document.querySelector('.import-tab[data-tab="text"]'));
+    openModal('modal-import');
+    setTimeout(() => $('import-textarea').focus(), 100);
+  }
+
+  function switchImportTab(tab, btn) {
+    document.querySelectorAll('.import-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    $('import-tab-text').style.display = tab === 'text' ? 'block' : 'none';
+    $('import-tab-csv').style.display  = tab === 'csv'  ? 'block' : 'none';
+    updateImportPreview();
+  }
+
+  // Парсит строку: если первое слово содержит точку/дефис → логин, остальное — имя
+  // Иначе — вся строка как имя (логин авто)
+  function parseImportLine(line) {
+    const trimmed = line.trim();
+    if (!trimmed) return null;
+    const parts = trimmed.split(/\s+/);
+    if (parts.length >= 2 && /[.\-]/.test(parts[0])) {
+      return { login: parts[0].toLowerCase(), name: parts.slice(1).join(' ') };
+    }
+    return { name: trimmed };
+  }
+
+  function parseImportText(raw) {
+    return raw
+      .split(/[\n]+/)
+      .map(parseImportLine)
+      .filter(Boolean);
+  }
+
+  function updateImportPreview() {
+    const activeTab = document.querySelector('.import-tab.active')?.dataset.tab;
+    if (activeTab === 'text') {
+      importItems = parseImportText($('import-textarea').value);
+    }
+    renderPreview(importItems);
+  }
+
+  function renderPreview(items) {
+    const existingByName  = new Map(allUsers.map(u => [u.name.toLowerCase(), u]));
+    const existingLogins  = new Set(allUsers.map(u => u.login?.toLowerCase()).filter(Boolean));
+    const preview  = $('import-preview');
+    const list     = $('preview-list');
+    const btn      = $('btn-do-import');
+
+    if (!items.length) {
+      preview.style.display = 'none';
+      btn.disabled = true;
+      return;
+    }
+
+    let newCount     = 0;
+    let updateCount  = 0;
+    let dupCount     = 0;
+
+    list.innerHTML = items.map(item => {
+      const nameKey  = item.name.toLowerCase();
+      const existing = existingByName.get(nameKey);
+
+      let badge, dot;
+      if (existing && item.login) {
+        // Уже есть, но будет обновлён логин
+        badge = '<div class="preview-item-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">обновить логин</div>';
+        dot   = 'preview-dot-dup';
+        updateCount++;
+      } else if (existing) {
+        badge = '<div class="preview-item-badge badge-dup">дубль</div>';
+        dot   = 'preview-dot-dup';
+        dupCount++;
+      } else {
+        badge = '<div class="preview-item-badge badge-new">новый</div>';
+        dot   = 'preview-dot-new';
+        newCount++;
+      }
+
+      const loginHint = item.login
+        ? `<span style="font-family:monospace; font-size:11px; color:var(--accent2); margin-left:6px;">${item.login}</span>`
+        : '';
+
+      return `
+        <div class="preview-item">
+          <div class="preview-dot ${dot}"></div>
+          <div class="preview-item-name">${item.name}${loginHint}</div>
+          ${badge}
+        </div>`;
+    }).join('');
+
+    const parts = [];
+    if (newCount)    parts.push(`${newCount} новых`);
+    if (updateCount) parts.push(`${updateCount} обновить логин`);
+    if (dupCount)    parts.push(`${dupCount} пропустить`);
+    $('preview-count').textContent = `${items.length} строк — ${parts.join(', ')}`;
+
+    preview.style.display = 'block';
+    btn.disabled = (newCount + updateCount) === 0;
+  }
+
+  function handleCSVFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    $('csv-file-name').textContent = `📄 ${file.name}`;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result.replace(/^\uFEFF/, '');
+      importItems = parseImportText(text);
+      renderPreview(importItems);
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  // Drag & drop для CSV зоны
+  const dropZone = $('csv-drop-zone');
+  if (dropZone) {
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        $('csv-file-name').textContent = `📄 ${file.name}`;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const text = ev.target.result.replace(/^\uFEFF/, '');
+          importItems = parseImportText(text);
+          renderPreview(importItems);
+        };
+        reader.readAsText(file, 'UTF-8');
+      }
+    });
+  }
+
+  async function doImport() {
+    if (!importItems.length) return;
+
+    const defaultPassword = $('import-default-password').value.trim();
+    if (!defaultPassword) {
+      showToast('Укажи пароль для импортируемых сотрудников', 'error');
+      $('import-default-password').focus();
+      return;
+    }
+
+    const btn = $('btn-do-import');
+    btn.disabled    = true;
+    btn.textContent = 'Импортирую...';
+
+    try {
+      const result = await api('/users/import', {
+        method: 'POST',
+        body: JSON.stringify({ users: importItems, defaultPassword })
+      });
+
+      closeModal('modal-import');
+
+      if (result.added.length || (result.updated && result.updated.length)) {
+        showImportResult(result, defaultPassword);
+      }
+
+      const added   = result.added?.length   || 0;
+      const updated = result.updated?.length || 0;
+      const skipped = result.skipped?.length || 0;
+      const parts = [];
+      if (added)   parts.push(`добавлено ${added}`);
+      if (updated) parts.push(`обновлено логинов ${updated}`);
+      if (skipped) parts.push(`пропущено ${skipped}`);
+      showToast(parts.join(', ') || 'Ничего не изменилось', (added || updated) ? 'success' : 'info');
+      loadUsers();
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Импортировать';
+    }
+  }
+
+  // Показываем таблицу с логинами/паролями после импорта
+  function showImportResult(result, password) {
+    const added   = result.added   || [];
+    const updated = result.updated || [];
+    if (!added.length && !updated.length) return;
+
+    const addedRows = added.map(u =>
+      `<tr>
+        <td style="padding:6px 12px;">${u.name}</td>
+        <td style="padding:6px 12px; font-family:monospace; color:var(--accent2);">${u.login}</td>
+        <td style="padding:6px 12px; font-family:monospace;">${password}</td>
+        <td style="padding:6px 12px; font-size:11px; color:var(--success);">добавлен</td>
+      </tr>`
+    ).join('');
+
+    const updatedRows = updated.map(u =>
+      `<tr>
+        <td style="padding:6px 12px;">${u.name}</td>
+        <td style="padding:6px 12px; font-family:monospace; color:var(--accent2);">${u.login}</td>
+        <td style="padding:6px 12px; color:var(--text-muted); font-size:12px;">без изменений</td>
+        <td style="padding:6px 12px; font-size:11px; color:#f59e0b;">логин обновлён</td>
+      </tr>`
+    ).join('');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay visible';
+    overlay.innerHTML = `
+      <div class="modal" style="max-width:680px;">
+        <div class="modal-title" style="margin-bottom:4px;">Импорт завершён</div>
+        <div style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
+          Добавлено: ${added.length} · Обновлено логинов: ${updated.length} · Пропущено: ${result.skipped?.length || 0}
+        </div>
+        <div style="overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:20px; max-height:400px; overflow-y:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface);">
+                <th style="text-align:left; padding:8px 12px; color:var(--text-muted); font-size:11px; text-transform:uppercase;">ФИО</th>
+                <th style="text-align:left; padding:8px 12px; color:var(--text-muted); font-size:11px; text-transform:uppercase;">Логин</th>
+                <th style="text-align:left; padding:8px 12px; color:var(--text-muted); font-size:11px; text-transform:uppercase;">Пароль</th>
+                <th style="text-align:left; padding:8px 12px; color:var(--text-muted); font-size:11px; text-transform:uppercase;">Статус</th>
+              </tr>
+            </thead>
+            <tbody>${addedRows}${updatedRows}</tbody>
+          </table>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="copyImportTable(this)">Скопировать</button>
+          <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">Закрыть</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  function copyImportTable(btn) {
+    const rows = btn.closest('.modal').querySelectorAll('tbody tr');
+    const text = Array.from(rows).map(r => {
+      const cells = r.querySelectorAll('td');
+      return `${cells[0].textContent.trim()}\t${cells[1].textContent.trim()}\t${cells[2].textContent.trim()}\t${cells[3].textContent.trim()}`;
+    }).join('\n');
+    navigator.clipboard.writeText('ФИО\tЛогин\tПароль\tСтатус\n' + text)
+      .then(() => showToast('Скопировано в буфер', 'success'))
+      .catch(() => showToast('Не удалось скопировать', 'error'));
   }
 
   // ─── Init ─────────────────────────────────────────────────────────────────
