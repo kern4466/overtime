@@ -136,7 +136,7 @@ app.post('/api/submit', requireUserAuth, (req, res) => {
       return res.status(400).json({ error: 'Нет записей для отправки' });
     }
 
-    const taskRe = /^OSHD-\d+$/;
+    const taskRe = /^(OSHD|EMP)-\d+$/;
     for (const e of entries) {
       if (!taskRe.test(e.taskId)) {
         return res.status(400).json({ error: `Неверный формат таска: ${e.taskId}` });

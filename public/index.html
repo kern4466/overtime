@@ -472,9 +472,63 @@
       text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px;
     }
 
+    /* ─── Touch globals ─── */
+    button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    input  { -webkit-tap-highlight-color: transparent; }
+
+    /* ─── Mobile ─── */
     @media (max-width: 480px) {
-      .card { padding: 20px 16px; }
-      .entry-row { grid-template-columns: 1fr 90px 36px; }
+      body {
+        padding: 20px 12px 60px;
+      }
+
+      /* Компактный хедер */
+      .header { margin-bottom: 20px; }
+      .logo-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
+      .logo-text { font-size: 18px; }
+      .header-subtitle { font-size: 12px; }
+
+      /* Баннер периода — перенос на двух строках */
+      .period-banner {
+        padding: 10px 14px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      /* Карточка */
+      .card { padding: 18px 14px; border-radius: 12px; }
+
+      /* Предотвращаем iOS auto-zoom при фокусе (нужно ≥ 16px) */
+      .form-input,
+      .entry-row input { font-size: 16px; }
+
+      /* Стекаем строки: таск — вся ширина сверху, время + ✕ — снизу */
+      .entries-header { display: none; }
+
+      .entry-row {
+        grid-template-columns: 1fr 44px;
+        grid-template-rows: auto auto;
+        column-gap: 8px;
+        row-gap: 6px;
+      }
+      .entry-task  { grid-column: 1 / 3; }
+      .entry-hours { grid-column: 1; text-align: left; }
+      .btn-remove  { grid-column: 2; width: 44px; height: 44px; }
+
+      /* Удобные touch-таргеты */
+      .btn-add     { min-height: 50px; font-size: 15px; }
+      .btn-primary { padding: 17px; font-size: 16px; }
+      .tab-btn     { padding: 10px 6px; font-size: 12px; gap: 4px; }
+      .btn-logout  { min-height: 40px; }
+
+      .total-value { font-size: 20px; }
+
+      /* Toast — разрешаем перенос текста */
+      .toast { white-space: normal; padding: 12px 18px; }
+
+      .success-screen { padding: 32px 16px; }
     }
   </style>
 </head>
@@ -915,11 +969,12 @@
 
     const taskInput = document.createElement('input');
     taskInput.type         = 'text';
-    taskInput.placeholder  = 'OSHD-12345';
+    taskInput.placeholder  = 'OSHD-12345 / EMP-123';
     taskInput.className    = 'entry-task';
     taskInput.value        = taskVal;
-    taskInput.autocomplete = 'off';
-    taskInput.spellcheck   = false;
+    taskInput.autocomplete  = 'off';
+    taskInput.spellcheck    = false;
+    taskInput.autocapitalize = 'characters';
 
     taskInput.addEventListener('input', () => {
       taskInput.value = taskInput.value.toUpperCase();
@@ -980,7 +1035,7 @@
   function validateTask(input) {
     const v = input.value.trim();
     if (!v) { input.className = 'entry-task'; return; }
-    input.className = 'entry-task ' + (/^OSHD-\d+$/.test(v) ? 'valid' : 'error');
+    input.className = 'entry-task ' + (/^(OSHD|EMP)-\d+$/.test(v) ? 'valid' : 'error');
   }
 
   function updateTotal() {
@@ -996,7 +1051,7 @@
   $('btn-submit').addEventListener('click', async () => {
     const rows    = document.querySelectorAll('.entry-row');
     const entries = [];
-    const taskRe  = /^OSHD-\d+$/;
+    const taskRe  = /^(OSHD|EMP)-\d+$/;
     let hasError  = false;
 
     rows.forEach(row => {
